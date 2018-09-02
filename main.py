@@ -1,10 +1,12 @@
 from __future__ import print_function
 
-from flask import Flask, request
+from flask import Flask, request, send_file
 
 from prep import do_he
 from anoms import proc_img
 from gjs import get_gj
+from sf import get_sf
+
 import sys
 
 if 'lin' in sys.platform:
@@ -42,12 +44,23 @@ def upload():
 
     he = do_he(temp_fn)
     proced = proc_img(he)
-
-    return get_gj(proced, temp_fn)
+    get_gj(proced, temp_fn)     # returns str rep, but also leaves file there
+    return send_file('geojson.json', attachment_filename='geojson.json', as_attachment=True)
 
 @app.route('/shapefile', methods=['POST'])
 def shapefile():
-    return 'coming soon'
+    uploaded_file = request.files.get('file')
+
+    if not uploaded_file:
+        return 'No file uploaded.', 400
+
+    with open(temp_fn, 'wb') as fp:
+        fp.write(uploaded_file.read())
+
+    he = do_he(temp_fn)
+    proced = proc_img(he)
+    get_sf(proced, temp_fn)     # returns str rep, but also leaves file there
+    return send_file('shapefile.zip', attachment_filename='shapefile.zip', as_attachment=True)
 
 @app.errorhandler(500)
 def server_error(e):

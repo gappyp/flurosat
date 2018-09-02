@@ -59,6 +59,9 @@ def get_gj(arg, fn):
     fc = FeatureCollection(features)
     fc_str = dumps(fc)
 
+    with open('geojson.json', 'w') as fp:
+        fp.write(fc_str)
+
     return fc_str
 
     #cv2.imshow('boxes', img)
