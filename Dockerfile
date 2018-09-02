@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y \
   python-gdal \
   python-opencv
 
-RUN pip install flask gunicorn geojson
+RUN pip install flask gunicorn geojson pyshp
 
 EXPOSE 8080
 
