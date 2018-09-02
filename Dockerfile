@@ -1,32 +1,21 @@
-FROM debian:latest
+FROM gcr.io/google-appengine/python
+LABEL python_version=python
 
-#  $ docker build . -t continuumio/miniconda:latest -t continuumio/miniconda:4.5.4 -t continuumio/miniconda2:latest -t continuumio/miniconda2:4.5.4
-#  $ docker run --rm -it continuumio/miniconda2:latest /bin/bash
-#  $ docker push continuumio/miniconda:latest
-#  $ docker push continuumio/miniconda:4.5.4
-#  $ docker push continuumio/miniconda2:latest
-#  $ docker push continuumio/miniconda2:4.5.4
+#RUN virtualenv --no-download /env -p python
+# Set virtualenv environment variables. This is equivalent to running
+# source /env/bin/activate
+#ENV VIRTUAL_ENV /env
+#ENV PATH /env/bin:$PATH
 
-ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
-ENV PATH /opt/conda/bin:$PATH
+RUN apt-get update && apt-get install -y \
+  binutils \
+  gdal-bin \
+  python-gdal \
+  python-opencv
 
-RUN apt-get update --fix-missing && apt-get install -y wget bzip2 ca-certificates \
-    libglib2.0-0 libxext6 libsm6 libxrender1 \
-    git mercurial subversion
+RUN pip install flask gunicorn
 
-RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda2-4.5.4-Linux-x86_64.sh -O ~/miniconda.sh && \
-    /bin/bash ~/miniconda.sh -b -p /opt/conda && \
-    rm ~/miniconda.sh && \
-    ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
-    echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc && \
-    echo "conda activate base" >> ~/.bashrc
+EXPOSE 8080
 
-RUN apt-get install -y curl grep sed dpkg && \
-    TINI_VERSION=`curl https://github.com/krallin/tini/releases/latest | grep -o "/v.*\"" | sed 's:^..\(.*\).$:\1:'` && \
-    curl -L "https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini_${TINI_VERSION}.deb" > tini.deb && \
-    dpkg -i tini.deb && \
-    rm tini.deb && \
-    apt-get clean
-
-ENTRYPOINT [ "/usr/bin/tini", "--" ]
-CMD [ "/bin/bash" ]
+ADD . /app/
+CMD gunicorn -b :8080 main:app
