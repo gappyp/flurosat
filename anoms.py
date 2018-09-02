@@ -2,7 +2,7 @@
 CAN_L = 1379
 CAN_U = 289
 DIL_I = 55
-BLUR = 11
+BLUR = 20
 THRESH_L = 55
 THRUSH_U = 255
 
@@ -42,18 +42,18 @@ def main():
     args, fns = cmd_args()
 
     cv2.namedWindow('canny')
-    cv2.createTrackbar('lower', 'canny', 1379, 10000, nothing)
-    cv2.createTrackbar('upper', 'canny', 289, 10000, nothing)
+    cv2.createTrackbar('lower', 'canny', CAN_L, 10000, nothing)
+    cv2.createTrackbar('upper', 'canny', CAN_U, 10000, nothing)
 
     cv2.namedWindow('dilate')
-    cv2.createTrackbar('iters', 'dilate', 55, 100, nothing)
+    cv2.createTrackbar('iters', 'dilate', DIL_I, 100, nothing)
 
     cv2.namedWindow('blur')
-    cv2.createTrackbar('ss', 'blur', 11, 25, nothing)
+    cv2.createTrackbar('ss', 'blur', BLUR, 25, nothing)
 
     cv2.namedWindow('thresh1')
-    cv2.createTrackbar('lower', 'thresh1', 55, 255, nothing)
-    cv2.createTrackbar('upper', 'thresh1', 255, 255, nothing)
+    cv2.createTrackbar('lower', 'thresh1', THRESH_L, 255, nothing)
+    cv2.createTrackbar('upper', 'thresh1', THRUSH_U, 255, nothing)
 
     for fn in fns:
         img = cv2.imread(str(fn), cv2.IMREAD_GRAYSCALE)
